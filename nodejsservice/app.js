@@ -6,6 +6,8 @@ const app = express();
 
 // Middleware para parsear el cuerpo de las peticiones en formato JSON
 app.use(express.json());
+const cors = require('cors');
+app.use(cors());
 
 
 
@@ -80,6 +82,6 @@ app.get('/datos', (req, res) => {
 
 // Configurar el puerto en el que se va a ejecutar el servidor
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`API corriendo en http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`API corriendo en http://0.0.0.0:${PORT}`);
 });
