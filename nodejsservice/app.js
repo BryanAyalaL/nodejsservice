@@ -98,6 +98,33 @@ app.get('/color', (req, res) => {
   });
 });
 
+// Ruta GET para obtener los resultados
+app.get('/resultado', (req, res) => {
+  const query = `
+    SELECT 
+        r.peso, 
+        r.color, 
+        r.hora, 
+        r.fecha, 
+        t.nombre AS maquina
+    FROM 
+        resultado r
+    JOIN 
+        sensor s ON r.idsensor = s.idsensor
+    JOIN 
+        trituradora t ON s.idsensor = t.idsensor;
+  `;
+
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error('Error al hacer la consulta:', err);
+      return res.status(500).json({ error: 'Hubo un error al consultar los datos' });
+    }
+    res.json(results); // Retorna los resultados de la consulta
+  });
+});
+
+
 // Ruta POST para registrar un nuevo usuario
 app.post('/registro', (req, res) => {
   const { email, contrasena } = req.body; // Ya no esperamos tipo_usuario_id
