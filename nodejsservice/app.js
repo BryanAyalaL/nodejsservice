@@ -7,8 +7,9 @@ const app = express();
 // Middleware para parsear el cuerpo de las peticiones en formato JSON
 app.use(express.json());
 const cors = require('cors');
-app.use(cors());
-
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://10.0.2.2:3000'] // Añadir la IP del emulador si es necesario
+}));
 
 
 // Definir una ruta GET
@@ -26,13 +27,9 @@ app.post('/mensaje', (req, res) => {
   }
 });
 
-
-
 const mysql = require('mysql2');
 
 // Crear una aplicación express
-
-
 // Middleware para parsear el cuerpo de las peticiones en formato JSON
 app.use(express.json());
 
@@ -52,7 +49,6 @@ connection.connect((err) => {
   }
   console.log('Conexión a la base de datos establecida');
 });
-
 
 // Ruta GET para obtener los datos de sensores, resultados y trituradoras
 app.get('/peso', (req, res) => {
@@ -99,6 +95,57 @@ app.get('/color', (req, res) => {
       return res.status(500).json({ error: 'Hubo un error al consultar los datos' });
     }
     res.json(results); // Retorna los resultados de la consulta
+  });
+});
+
+// Ruta POST para registrar un nuevo usuario
+app.post('/registro', (req, res) => {
+  const { email, contrasena } = req.body; // Ya no esperamos tipo_usuario_id
+
+  // Validación de los datos
+  if (!email || !contrasena) {
+    return res.status(400).json({ error: 'Todos los campos son requeridos' });
+  }
+
+  // Validar formato del correo electrónico (puedes usar una expresión regular o una librería)
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ error: 'Correo electrónico no válido' });
+  }
+
+  // Validar la contraseña (puedes usar una expresión regular o validación propia)
+  if (contrasena.length < 6) {
+    return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+  }
+
+  // Verificar si el email ya existe en la base de datos
+  const checkEmailQuery = 'SELECT * FROM usuario WHERE email = ?';
+  connection.query(checkEmailQuery, [email], (err, results) => {
+    if (err) {
+      console.error('Error al verificar el email:', err);
+      return res.status(500).json({ error: 'Hubo un error al verificar el email' });
+    }
+
+    if (results.length > 0) {
+      return res.status(400).json({ error: 'El correo electrónico ya está registrado' });
+    }
+
+    // Asignar tipo_usuario_id como 1 (valor predeterminado)
+    const tipo_usuario_id = 1;
+
+    // Insertar el nuevo usuario en la base de datos (sin encriptar la contraseña)
+    const insertQuery = `
+      INSERT INTO usuario (tipo_usuario_id, email, contrasena, estado)
+      VALUES (?, ?, ?, 'HABILITADO');
+    `;
+    connection.query(insertQuery, [tipo_usuario_id, email, contrasena], (err, result) => {
+      if (err) {
+        console.error('Error al insertar el usuario:', err);
+        return res.status(500).json({ error: 'Hubo un error al registrar el usuario' });
+      }
+
+      res.status(201).json({ message: 'Usuario registrado exitosamente' });
+    });
   });
 });
 
