@@ -55,21 +55,42 @@ connection.connect((err) => {
 
 
 // Ruta GET para obtener los datos de sensores, resultados y trituradoras
-app.get('/datos', (req, res) => {
+app.get('/peso', (req, res) => {
   const query = `
     SELECT
-      s.fecha_inicial,
-      s.fecha_final,
+      r.fecha,
       r.peso,
       t.nombre AS trituradora
     FROM
-      sensor s
+      resultado r
     JOIN
-      resultado r ON s.idsensor = r.idsensor
+      sensor s ON s.idsensor = r.idsensor
     JOIN
       trituradora t ON t.idsensor = s.idsensor;
   `;
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error('Error al hacer la consulta:', err);
+      return res.status(500).json({ error: 'Hubo un error al consultar los datos' });
+    }
+    res.json(results); // Retorna los resultados de la consulta
+  });
+});
 
+// Ruta GET para obtener los datos de sensores, resultados y trituradoras
+app.get('/color', (req, res) => {
+  const query = `
+    SELECT
+      r.fecha,
+      r.peso,
+      t.nombre AS trituradora
+    FROM
+      resultado r
+    JOIN
+      sensor s ON s.idsensor = r.idsensor
+    JOIN
+      trituradora t ON t.idsensor = s.idsensor;
+  `;
   connection.query(query, (err, results) => {
     if (err) {
       console.error('Error al hacer la consulta:', err);
