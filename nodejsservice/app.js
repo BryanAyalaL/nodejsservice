@@ -149,6 +149,47 @@ app.post('/registro', (req, res) => {
   });
 });
 
+app.post('/login', (req, res) => {
+  const { email, contrasena } = req.body;
+
+  // Validación de los datos de entrada
+  if (!email || !contrasena) {
+    return res.status(400).json({ error: 'Todos los campos son requeridos' });
+  }
+
+  // Verificar si el email existe en la base de datos
+  const checkEmailQuery = 'SELECT * FROM usuario WHERE email = ?';
+  connection.query(checkEmailQuery, [email], (err, results) => {
+    if (err) {
+      console.error('Error al verificar el email:', err);
+      return res.status(500).json({ error: 'Hubo un error al verificar el email' });
+    }
+
+    if (results.length === 0) {
+      return res.status(400).json({ error: 'Usuario no encontrado' });
+    }
+
+    const user = results[0];
+
+    // Verificar si el tipo de usuario es 1 o 2 (si es necesario)
+    if (user.tipo_usuario_id !== 1 && user.tipo_usuario_id !== 2) {
+      return res.status(400).json({ error: 'El tipo de usuario no es válido' });
+    }
+
+    // Verificar si la contraseña es correcta
+    if (contrasena !== user.contrasena) {
+      return res.status(400).json({ error: 'Contraseña incorrecta' });
+    }
+
+    // Si la contraseña es correcta, devolver un mensaje de éxito
+    res.status(200).json({
+      message: 'Inicio de sesión exitoso',
+      userId: user.idusuario,
+      tipo_usuario_id: user.tipo_usuario_id,
+    });
+  });
+});
+
 
 // Configurar el puerto en el que se va a ejecutar el servidor
 const PORT = process.env.PORT || 3000;
