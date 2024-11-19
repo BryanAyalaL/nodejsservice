@@ -80,16 +80,18 @@ app.get('/peso', (req, res) => {
 // Ruta GET para obtener los datos de sensores, resultados y trituradoras
 app.get('/color', (req, res) => {
   const query = `
-    SELECT
-      r.fecha,
-      r.peso,
-      t.nombre AS trituradora
-    FROM
-      resultado r
-    JOIN
-      sensor s ON s.idsensor = r.idsensor
-    JOIN
-      trituradora t ON t.idsensor = s.idsensor;
+    SELECT 
+        r.hora,
+        r.color,
+        r.fecha,
+        t.nombre AS trituradora
+    FROM 
+        resultado r
+    JOIN 
+        sensor s ON r.idsensor = s.idsensor
+    JOIN 
+        trituradora t ON t.idsensor = s.idsensor;
+
   `;
   connection.query(query, (err, results) => {
     if (err) {
