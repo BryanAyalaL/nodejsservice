@@ -141,8 +141,8 @@ app.post('/registro', (req, res) => {
   }
 
   // Validar la contraseña (puedes usar una expresión regular o validación propia)
-  if (contrasena.length < 6) {
-    return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+  if (contrasena.length < 3) {
+    return res.status(400).json({ error: 'La contraseña debe tener al menos 3 caracteres' });
   }
 
   // Verificar si el email ya existe en la base de datos
