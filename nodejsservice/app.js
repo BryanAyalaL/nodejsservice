@@ -50,7 +50,6 @@ connection.connect((err) => {
   console.log('Conexión a la base de datos establecida');
 });
 
-// Ruta GET para obtener los datos de sensores, resultados y trituradoras
 app.get('/peso', (req, res) => {
   const query = `
     SELECT
@@ -62,7 +61,9 @@ app.get('/peso', (req, res) => {
     JOIN
       sensor s ON s.idsensor = r.idsensor
     JOIN
-      trituradora t ON t.idsensor = s.idsensor;
+      trituradora t ON t.idsensor = s.idsensor
+    WHERE
+      r.estado = 'HABILITADO' AND t.estado = 'HABILITADO';  -- Filtro opcional si solo quieres los activos
   `;
   connection.query(query, (err, results) => {
     if (err) {
@@ -72,6 +73,7 @@ app.get('/peso', (req, res) => {
     res.json(results); // Retorna los resultados de la consulta
   });
 });
+
 
 // Ruta GET para obtener los datos de sensores, resultados y trituradoras
 app.get('/color', (req, res) => {
